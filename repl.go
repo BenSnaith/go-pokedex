@@ -1,11 +1,85 @@
 package main
 
 import (
+	"bufio"
+	"fmt"
+	"os"
 	"strings"
+
+	"github.com/BenSnaith/go-pokedex/internal/pokeapi"
 )
+
+// struct which describes the basic components of a CLI command
+type cliCommand struct {
+	name        string
+	description string
+	callback    func(*config) error
+}
+
+type config struct {
+	pokeapiClient    pokeapi.Client
+	nextLocationsURL *string
+	prevLocationsURL *string
+}
+
+func startRepl(conf *config) {
+
+	fmt.Println(`Welcome to go-pokédex!`)
+
+	scanner := bufio.NewScanner(os.Stdin)
+
+	for {
+		fmt.Print("Pokédex > ")
+
+		scanner.Scan()
+
+		words := cleanInput(scanner.Text())
+		if len(words) == 0 {
+			continue
+		}
+
+		commandInput := words[0]
+
+		command, exists := getCommands()[commandInput]
+		if exists {
+			err := command.callback(conf)
+			if err != nil {
+				fmt.Println(err)
+			}
+		} else {
+			fmt.Println("Unknown command")
+			continue
+		}
+	}
+}
 
 func cleanInput(text string) []string {
 	output := strings.ToLower(text)
 	words := strings.Fields(output)
 	return words
+}
+
+func getCommands() map[string]cliCommand {
+	return map[string]cliCommand{
+		"exit": {
+			name:        "exit",
+			description: "Exit the Pokédex",
+			callback:    commandExit,
+		},
+		"help": {
+			name:        "help",
+			description: "Displays a help message",
+			callback:    commandHelp,
+		},
+		"map": {
+			name:        "map",
+			description: "Get the next page of locations",
+			callback:    commandMapf,
+		},
+		"mapb": {
+			name:        "mapb",
+			description: "Get the previous page of locations",
+			callback:    commandMapb,
+		},
+	}
 }
