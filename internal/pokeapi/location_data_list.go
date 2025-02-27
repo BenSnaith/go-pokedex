@@ -9,7 +9,7 @@ import (
 func (c *Client) ListLocationData(locationName string) (RespLocationData, error) {
 	url := base_url + "/location-area/" + locationName
 
-	// check if the data is in the client cache
+	// check if the data is already in client pokecache
 	if val, ok := c.cache.Get(url); ok {
 		locationDataResp := RespLocationData{}
 		err := json.Unmarshal(val, &locationDataResp)

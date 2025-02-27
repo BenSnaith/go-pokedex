@@ -13,6 +13,7 @@ func main() {
 	// conf - a pointer to a config struct which contains our instance of the pokeClient
 	conf := &config{
 		pokeapiClient: pokeClient,
+		caughtPokemon: map[string]pokeapi.RespPokemonData{},
 	}
 
 	startRepl(conf)
